@@ -12,13 +12,16 @@
   },
   "jest": {
     "preset": "jest-expo",
-    "testMatch": ["**/__tests__/**/*.test.ts?(x)"],
+    "testMatch": [
+      "**/__tests__/**/*.test.ts?(x)"
+    ],
     "watchman": false
   },
   "dependencies": {
     "@expo/metro-runtime": "~57.0.7",
     "expo": "~57.0.8",
     "expo-constants": "~57.0.7",
+    "expo-dev-client": "~57.0.9",
     "expo-linking": "~57.0.4",
     "expo-router": "~57.0.8",
     "expo-sqlite": "~57.0.1",
