@@ -16,10 +16,6 @@ Roughly 70% of the value is fast expense logging. The remaining 30% is a forward
 view of the month: scheduled bills, income dates, and "how much will I actually have on
 the 20th?"
 
-Business finances live in **Dinero** and stay there. A `business` profile exists in this
-app only for capturing expenses on the go — it is never the source of truth for the
-business books.
-
 **The one design constraint that outranks everything:** pocket to saved expense in under
 five seconds and no more than three taps. Any feature that slows the capture path gets
 moved off it.
@@ -28,11 +24,11 @@ moved off it.
 
 ## 2. Tech Stack
 
-- **Phone (primary):** Expo / React Native, TypeScript
-- **Local database:** SQLite (`expo-sqlite`) via Drizzle ORM — source of truth on device
+- **Phone (primary):** Expo SDK 57 / React Native 0.86, TypeScript, expo-router
+- **Local database:** SQLite via `expo-sqlite`, raw SQL behind a `Store` interface
 - **Widget:** Android App Widget via a native module — requires an EAS dev build, not Expo Go
-- **PC:** Next.js (App Router) — web UI plus the sync API
-- **Server database:** PostgreSQL
+- **PC:** Next.js — web UI plus the sync API (not started)
+- **Server database:** PostgreSQL (not started)
 - **Locale:** Danish krone, `1.234,50 kr.` formatting, Europe/Copenhagen, Monday-first weeks
 
 ---
@@ -41,52 +37,66 @@ moved off it.
 
 - **The phone works fully offline, always.** The network is never on the critical path for
   logging an expense.
+- **Money is an integer number of øre.** Never a float, anywhere, at any layer.
 - **The phone's SQLite database is the source of truth for the phone.** The server is a
   sync peer, not an authority.
 - **Never store card numbers, bank credentials, or CPR numbers.** Not now, not later.
-- Sensitive entry fields (amount, note, merchant) live in a single `payload` column so the
-  server side can be swapped to ciphertext later without a schema migration.
-- **The ledger is append-only.** Soft-delete via `deleted_at`; never hard-delete a row that
+- **The ledger is append-only.** Soft-delete via `deletedAt`; never hard-delete a row that
   has already synced.
-- Every row carries a client-generated UUID and an `updated_at` — sync is last-write-wins.
-- `profile_id` is mandatory on every entry. Personal and business totals never mix in any
-  view, export, or total.
-- Transfers between own accounts are a distinct entry type and never count as spending.
-- All schema changes ship as a migration file.
+- Every row carries a client-generated UUID and an `updatedAt` — sync is last-write-wins.
+- **Removing a category archives it.** Entries keep pointing at it so history and past
+  totals never change retroactively.
+- Transfers between own accounts will be a distinct entry type and must never count as
+  spending.
+- All schema changes ship as a new entry in `db/migrations.ts` — never edit an existing one.
 - **Never commit `.env`, secrets, or a local database file.**
 
 ---
 
 ## 4. Architecture
 
-Three layers, and code does not skip one:
+Four layers, and code does not skip one:
 
-1. **`db/`** — schema, migrations, typed queries. Nothing else touches SQLite directly.
-2. **`lib/`** — business logic: balance projection, budget pacing, recurrence expansion,
-   category rules, currency formatting. Pure functions, unit tested.
-3. **`app/`** — screens and components. Presentation only: no SQL, no money arithmetic.
+1. **`db/`** — the only place that speaks SQL. Exposes a `Store` interface returning plain
+   objects, so nothing above it knows or cares that SQLite exists.
+2. **`lib/`** — pure functions: money formatting, date maths, the numpad state machine,
+   month aggregation. No I/O, no React. This is what the tests cover.
+3. **`state/`** — binds the store to React and holds the ledger in memory. Screens read
+   from here and call its actions.
+4. **`app/`** — expo-router screens. Presentation only: no SQL, no money arithmetic.
 
-`sync/` is a separate module that reads and writes the ledger through `db/` like any other
-consumer, so sync can be developed, tested, and disabled independently.
+The whole ledger is loaded into memory. A few thousand rows over several years is nothing,
+and it means every total is a pure function in `lib/` rather than a SQL query — far easier
+to test and identical on every platform.
 
 ---
 
 ## 5. Critical Files
 
-Nothing implemented yet — this section gets filled in as the scaffold lands.
-
-- `ai-instructions/docs/design/light-mode-concepts.html` — current UI design concepts
+- `app/add.tsx` — the numpad. The whole product; treat regressions here as critical.
+- `lib/amountInput.ts` — the numpad state machine. A bug here is a wrong number in the ledger.
+- `lib/money.ts` — øre formatting. The only place money becomes a string.
+- `lib/totals.ts` — all month aggregation and budget pacing.
+- `db/migrations.ts` — append-only schema history.
+- `db/sqliteStore.ts` — the only SQL in the codebase.
+- `state/DataProvider.tsx` — every write goes through here.
+- `theme/tokens.ts` — colours and spacing from the approved design. Screens must not
+  hard-code hex values.
+- `ai-instructions/docs/design/light-mode-concepts.html` — the approved design concepts.
+- `ai-instructions/docs/widget-spike.md` — the unrun spike the stack choice depends on.
 
 ---
 
 ## 6. Known Limitations & Out of Scope
 
 - **No bank feed.** Confirmed unavailable for this bank and country. Do not design around one.
-- **No voice entry.** Explicitly rejected by the user — do not reintroduce it.
+- **No voice entry.** Explicitly rejected by the user — do not reintroduce it in any form.
 - **No time-of-day category guessing.** The user's schedule is irregular enough that it
   would guess wrong more often than right.
-- Notification capture is a convenience layer, never the only capture path. Many payments
-  (online card, bills, account transfers) produce no notification at all.
+- **No business profile.** Business bookkeeping lives in Dinero and Skat. A convenient
+  second profile here would risk becoming a habit that bypasses them — deliberately dropped.
+- Notification capture, when built, is a convenience layer and never the only capture path.
+  Many payments (online card, bills, transfers) produce no notification at all.
 - No multi-user or shared household mode.
 - No investments, assets, or net worth tracking.
 - No multi-currency beyond DKK.

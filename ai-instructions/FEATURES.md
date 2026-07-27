@@ -10,65 +10,58 @@ Tracks implemented, in-progress, and planned features.
 ## Phase 1 — MVP
 
 ### Quick expense entry
-**status:** planned
+**status:** implemented
 **description:** Amount-first numpad screen with category chips on the same view. Three taps from open to saved, no network required.
-**date_implemented:** —
+**date_implemented:** 2026-07-27
 **depends_on:** Local ledger database
 **blocked_by:** —
 
 ### Local ledger database
-**status:** planned
-**description:** SQLite on device via Drizzle. Append-only entries with UUID, profile_id, updated_at, soft delete.
-**date_implemented:** —
+**status:** implemented
+**description:** SQLite on device behind a Store interface, raw SQL with a user_version migration runner. Append-only entries with UUID, updated_at and soft delete. Money stored as integer øre.
+**date_implemented:** 2026-07-27
 **depends_on:** —
 **blocked_by:** —
 
 ### Category system
-**status:** planned
-**description:** Eight opinionated starter categories with colour and icon, plus custom categories, reorder, pin and archive.
-**date_implemented:** —
-**depends_on:** Local ledger database
-**blocked_by:** —
-
-### Profile switching
-**status:** planned
-**description:** Switch between personal and business. Every entry carries a profile_id and totals never mix across profiles.
-**date_implemented:** —
+**status:** implemented
+**description:** Eight starter categories seeded on first run. Add, rename, recolour, and non-destructive archive and restore. Reordering and pinning not built yet.
+**date_implemented:** 2026-07-27
 **depends_on:** Local ledger database
 **blocked_by:** —
 
 ### Entry edit, delete and undo
-**status:** planned
-**description:** Undo snackbar straight after save, plus full edit and soft delete from the entry list.
+**status:** in-progress
+**description:** Soft delete works — tap an entry to reveal its delete action. Editing an existing entry and the post-save undo snackbar are not built yet.
 **date_implemented:** —
 **depends_on:** Quick expense entry
 **blocked_by:** —
 
 ### Income logging
-**status:** planned
+**status:** implemented
 **description:** Log money in — salary, refunds, gifts — as a distinct entry type that offsets spending.
-**date_implemented:** —
+**date_implemented:** 2026-07-27
 **depends_on:** Local ledger database
 **blocked_by:** —
 
 ### Month overview
-**status:** planned
+**status:** implemented
 **description:** Landing screen showing spent, left to spend, daily allowance for the remaining days, and today's entries.
-**date_implemented:** —
+**date_implemented:** 2026-07-27
 **depends_on:** Local ledger database
 **blocked_by:** —
 
 ### Category breakdown
-**status:** planned
-**description:** Horizontal bars per category for the selected month, with amounts and share of total.
-**date_implemented:** —
+**status:** implemented
+**description:** Horizontal bars per category for the selected month, ranked by spend and scaled against the largest, with month-over-month comparison and biggest expenses.
+**date_implemented:** 2026-07-27
 **depends_on:** Category system
 **blocked_by:** —
 
 ### Danish locale and currency formatting
-**status:** planned
+**status:** implemented
 **description:** DKK formatting as 1.234,50 kr., Monday-first weeks, Europe/Copenhagen dates throughout.
-**date_implemented:** —
+**date_implemented:** 2026-07-27
 **depends_on:** —
 **blocked_by:** —
 
@@ -119,8 +112,8 @@ Tracks implemented, in-progress, and planned features.
 **blocked_by:** —
 
 ### Monthly budget
-**status:** planned
-**description:** Per-category and overall budgets covering variable spending only. Fixed bills are handled by projection, not by budget.
+**status:** in-progress
+**description:** One overall monthly budget covering variable spending, with left-to-spend, a daily allowance for the days remaining, and a pace marker showing where the calendar says you should be. Per-category budgets not built yet.
 **date_implemented:** —
 **depends_on:** Category system
 **blocked_by:** —

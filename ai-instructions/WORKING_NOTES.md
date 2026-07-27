@@ -54,6 +54,41 @@ the phone anyway.
 **reasoning:** Shipping the habit-forming part matters more than perfect crypto on day one, but a data model that forecloses encryption would be an expensive mistake later. This buys the option cheaply.
 **resolved_date:** —
 
+### Raw SQL instead of Drizzle
+**status:** resolved
+**category:** Architecture
+**details:**
+The earlier plan named Drizzle for migration support. The build uses raw SQL behind a
+Store interface with a migration runner keyed on SQLite's own PRAGMA user_version.
+Drizzle's Expo integration needs generated SQL files plus a Metro transformer, and its
+web story was another unknown on top of an already-unproven stack.
+The invariants that mattered are unaffected: only db/ speaks SQL, and schema changes
+still ship as append-only migrations.
+**reasoning:** The query surface is tiny — the whole ledger loads into memory and every total is computed by a pure function in lib/. An ORM buys type-safe query building that this app barely uses, at the cost of build configuration that could break the one working iteration loop. Revisit if the query layer ever gets genuinely complex.
+**resolved_date:** 2026-07-27
+
+### Money is integer øre everywhere
+**status:** resolved
+**category:** Architecture
+**details:**
+Amounts are stored, passed and computed as an integer number of øre. Floats appear
+nowhere, at any layer. Formatting is hand-rolled rather than using Intl so output is
+identical on web, on device and in tests.
+**reasoning:** Float arithmetic on money produces wrong totals eventually, and a finance app that is occasionally off by a øre is worse than useless. Avoiding Intl removes a dependency on the JS engine's locale data, which differs between Hermes and a browser.
+**resolved_date:** 2026-07-27
+
+### Browser preview persists to localStorage
+**status:** open
+**category:** Tech Debt
+**details:**
+expo-sqlite on web needs a WASM build and COOP/COEP headers on the dev server. That is a
+fragile dependency for what is currently the only working iteration loop, so the web
+build uses a localStorage driver behind the same Store interface.
+Only persistence differs — all aggregation lives in lib/ and operates on plain objects,
+so both drivers share identical logic.
+**reasoning:** The browser is a design and flow preview, not the real PC client; that will talk to the sync API and hold no local database. Acceptable while true, but it does mean the browser cannot validate anything database-specific — test schema and migration behaviour on device.
+**resolved_date:** —
+
 ---
 
 ## Product
@@ -81,17 +116,33 @@ Weekly feels right; worth testing.
 **reasoning:** The alternative — deriving balance purely from logged entries — compounds every missed entry into a permanently wrong number, which would poison the one feature meant to make the budget stick.
 **resolved_date:** —
 
-### Business profile does not replace Dinero
-**status:** open
+### Business profile dropped entirely
+**status:** resolved
 **category:** Product
 **details:**
-The business profile is a capture convenience for expenses incurred away from the desk.
-Dinero remains the source of truth for the business books. Two systems holding the same
-figures will drift, so the app should make the handoff explicit — a per-profile export
-sized to what actually gets entered into Dinero — rather than pretending to be a ledger
-for the business.
-**reasoning:** Duplicate bookkeeping is a genuine accounting risk, not just untidiness. Naming the app as the capture side and Dinero as the record side avoids ever having to reconcile the two.
-**resolved_date:** —
+There is no business profile and no profile switching. Every entry belongs to one
+personal ledger.
+**reasoning:** The user's own objection settled it: if logging business expenses here became a habit, it would start to feel done — and the entry into Dinero and Skat, where it legally has to go, might get skipped. A convenience that quietly competes with the system of record is worse than no convenience. This removed a mandatory column from every table and a control from every screen, so the capture path got faster too.
+**resolved_date:** 2026-07-27
+
+### Categories are removed by archiving, never deleted
+**status:** resolved
+**category:** Product
+**details:**
+Categories can be added, renamed and recoloured freely. "Remove" sets archivedAt, which
+hides the category from the numpad while every past entry keeps pointing at it.
+Archived categories can be restored, and still render correctly in history and insights.
+**reasoning:** Deleting a category would silently rewrite past months — spending that was categorised becomes uncategorised, and last month's totals change retroactively. Historical numbers that move are worse than a slightly longer settings list.
+**resolved_date:** 2026-07-27
+
+### Category is optional when logging
+**status:** resolved
+**category:** Product
+**details:**
+An entry can be saved with an amount and nothing else. Uncategorised spending is shown as
+its own row in the breakdown rather than being hidden or dropped.
+**reasoning:** Two taps beats three, and a logged expense with no category is far more valuable than an expense never logged because the right category was not obvious at the till. This is what the planned batch tidy-up screen exists to clean up later.
+**resolved_date:** 2026-07-27
 
 ### Notification capture is additive, never the only path
 **status:** resolved

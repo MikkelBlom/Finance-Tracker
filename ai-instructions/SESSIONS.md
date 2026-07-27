@@ -50,3 +50,48 @@ actual device.
 **next_steps:**
 Run the widget feasibility spike before writing any real code, since the whole framework
 choice rests on it. Then scaffold the Expo app and build the add-expense screen first.
+
+### 2026-07-27 — MVP built and running
+**agent:** Claude Code
+**summary:**
+The project had no package.json at all, so `expo start` failed immediately. Scaffolded
+from Expo's own generator to get guaranteed-correct SDK 57 versions rather than
+hand-written ones, then built the MVP.
+
+Shipped and verified running in the browser: the amount-first numpad with optional
+decimals, eight seeded but fully editable categories, income and expense entries, soft
+delete, the month overview with budget pacing, the insights breakdown with
+month-over-month comparison, category management, and a budget setting.
+
+Layers are db/ (only SQL), lib/ (pure functions, tested), state/ (React binding), app/
+(screens only). 28 unit tests over money formatting, the numpad state machine and month
+aggregation. Typecheck clean.
+
+Decisions taken this session, recorded in WORKING_NOTES:
+- Raw SQL with a user_version migration runner instead of Drizzle — the query surface is
+  too small to justify the build configuration.
+- Money is integer øre everywhere, with hand-rolled formatting so output is identical on
+  web, on device and in tests.
+- The business profile was dropped entirely at the user's suggestion, since a convenient
+  second ledger risks becoming a habit that bypasses Dinero and Skat.
+- Category removal archives rather than deletes, so past months never change retroactively.
+- Category is optional when logging — two taps beats three, and an uncategorised entry
+  beats an unlogged one.
+**issues:**
+Verified the full save flow by driving the DOM, since the browser pane could not
+composite frames for screenshots. That surfaced a real bug: opening /add as the first
+route left `router.back()` with no history to pop, so the save button stuck on "Saving…"
+— which is exactly how the widget will launch the screen. Fixed with a canGoBack check
+falling back to the overview.
+
+Also fixed: a deprecated shadow style prop, and a TabBar type that pulled in
+@react-navigation/bottom-tabs without it being a direct dependency.
+
+The FAB overlap the user spotted in the mockups is handled properly in the real app — the
+button overlaps only the tab bar, and every scrolling screen pads its content by
+SCROLL_BOTTOM_INSET so nothing is ever hidden underneath it.
+**next_steps:**
+Widget spike — it needs an Expo login so it cannot be run unattended, and this machine has
+no JDK or Android SDK so it has to be a cloud build. Steps are in docs/widget-spike.md.
+After that, use the app for a week; everything else in the backlog is a guess until real
+use says what actually hurts.
