@@ -12,16 +12,28 @@ Active work items. This file drives the Kanban board in Launchpad.
 ## Now
 
 ### Widget feasibility spike
-**status:** todo
+**status:** in-progress
 **priority:** high
-**description:** Blocked on an Expo login, which cannot be done for you. Steps are written up in ai-instructions/docs/widget-spike.md — eas.json is already configured. This machine has no JDK or Android SDK, so it has to be a cloud build. Nothing else should be built on top of the Expo bet until this passes.
+**description:** Half proven. The EAS cloud pipeline works — a development APK built and downloaded successfully, so the machine needs no JDK or Android SDK. The actual question is still open: whether an Android App Widget can be registered and appear in the launcher's widget list from an Expo build. Add the widget library, register a trivial widget, rebuild once, and try to drop it on the home screen. Nothing else should be built on top of the Expo bet until that passes.
 **created:** 2026-07-27
 
 ### Use it for a week and report what hurts
 **status:** todo
 **priority:** high
-**description:** The MVP runs. The only useful next input is real use — which taps feel slow, which categories are wrong, whether the budget number changes any behaviour. Everything in the backlog is a guess until then.
+**description:** Install the standalone preview APK from https://expo.dev/accounts/mikkelr/projects/finance-tracker/builds — see docs/run-on-phone.md. The only useful next input is real use: which taps feel slow, which categories are wrong, whether the budget number changes any behaviour. Everything in the backlog is a guess until then.
 **created:** 2026-07-27
+
+### Confirm SQLite works on the device
+**status:** todo
+**priority:** high
+**description:** Everything so far ran in the browser, which uses the localStorage driver — the expo-sqlite path has never executed. The SQL itself is verified against a real SQLite engine (migrations, upserts, soft delete, idempotent re-run all pass); what is unverified is expo-sqlite's binding and reading PRAGMA user_version back through getFirstAsync. First launch on the phone is the test. If it dies, `adb logcat *:E` will show why.
+**created:** 2026-07-28
+
+### Re-sync Launchpad
+**status:** todo
+**priority:** low
+**description:** The Launchpad service was not running at the end of the 28 Jul session, so the build progress, the new SQLite verification task and the widget spike status change exist only in these markdown files. Push them when Launchpad is next up.
+**created:** 2026-07-28
 
 ### Edit an existing entry
 **status:** todo

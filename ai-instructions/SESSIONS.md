@@ -130,3 +130,43 @@ Run the widget build if the EAS login is in fact done — it is the one result t
 still invalidate the framework choice. Then decide what the markdown trackers are for now
 that Launchpad owns the board: either they become the long-form detail Launchpad links to,
 or they go.
+
+### 2026-07-28 — Get it onto the phone
+**agent:** Claude Code
+**summary:**
+The EAS development build had actually succeeded. The `spawn adb ENOENT` failure came
+only from answering yes to "install and run on an emulator", which needs a local Android
+SDK — installing to a real phone over the web link needs nothing on the PC at all.
+
+The more useful correction: a development build contains no JavaScript. It fetches code
+from Metro over the LAN, so it is useless without the PC running. For a week of real
+expense logging the right artifact is a standalone release APK, so a `preview` build was
+started. Both builds share the package name dk.mikkelblom.financetracker and will collide
+if installed together.
+
+Installed Android platform-tools via winget from Google's own server, giving adb and
+fastboot. Not required for anything current, but `adb logcat *:E` is how a crash on the
+phone gets diagnosed.
+
+De-risked the one completely untested path. Everything until now ran in the browser on the
+localStorage driver, so the expo-sqlite code had never executed. Extracted the shipped SQL
+straight from db/migrations.ts and ran it against a real SQLite engine along with both
+upserts, the soft delete and the settings write — all correct, and re-running the
+migrations is properly idempotent. What remains unverified is expo-sqlite's own binding.
+
+Wrote docs/run-on-phone.md covering install, the difference between the two builds, when a
+rebuild is actually needed, and the firewall prompt that catches the dev-server path.
+**issues:**
+The Launchpad service was not reachable on localhost:7420, so none of this session's task
+changes reached it — they exist only in TASKS.md. Logged as a task to re-sync.
+
+Free-tier EAS queue time ran to roughly 90 minutes on the previous build, far longer than
+the 16 minutes of actual build time. Worth knowing before planning around a rebuild.
+
+The SQLite path is still unproven on device, and first launch is the test. That is the one
+thing that could make tomorrow morning not work.
+**next_steps:**
+Install the preview APK and use the app. If it launches, the MVP is real and a week of
+logging is the next input. If it crashes on launch, it is almost certainly expo-sqlite
+initialisation — `adb logcat *:E`. Then the widget spike, which remains the open question
+the framework choice rests on.
