@@ -95,3 +95,38 @@ Widget spike — it needs an Expo login so it cannot be run unattended, and this
 no JDK or Android SDK so it has to be a cloud build. Steps are in docs/widget-spike.md.
 After that, use the app for a week; everything else in the backlog is a guess until real
 use says what actually hurts.
+
+### 2026-07-27 — Launchpad onboarding
+**agent:** Claude Code
+**summary:**
+Launchpad held nothing for this project beyond its name and path — no description, tags,
+tasks, ideas or notes. Filled it from the existing ai-instructions files: a real
+description, seven tags, 11 open tasks plus 5 done ones, 15 ideas and 14 notes. `launchpad
+audit` now reports nothing missing.
+
+Everything pushed is grounded in what the repo already says. The three rejected features
+were deliberately not pushed as ideas — that is precisely how a rejected feature gets
+re-proposed — and live in a pinned note instead, alongside pinned notes for the
+five-second capture constraint and the unvalidated widget bet.
+
+Claimed 8081 as the project's dev-server port, detected from .claude/launch.json rather
+than picked. Committed and pushed the previous session's uncommitted work (expo-dev-client
+plus the EAS project id in app.json), the Launchpad binding files, and a gitignore rule for
+the snapshot cache that `launchpad pull` regenerates on every run.
+**issues:**
+The ports API returned 404 on every call at the start of the session — it was still being
+built — and `launchpad set port` additionally crashed the CLI with a libuv assertion. Both
+worked on retry later in the session.
+
+app.json now carries an EAS project id and expo-dev-client is a direct dependency, neither
+of which was committed by the previous session. Creating an EAS project requires being
+logged in, so the widget spike is probably further along than TASKS.md claims. Worth
+confirming before anyone repeats the setup steps.
+
+TASKS.md, FUTURE_IDEAS.md and WORKING_NOTES.md now duplicate what Launchpad holds, and
+Launchpad is the source of truth. They will drift. Not resolved this session.
+**next_steps:**
+Run the widget build if the EAS login is in fact done — it is the one result that could
+still invalidate the framework choice. Then decide what the markdown trackers are for now
+that Launchpad owns the board: either they become the long-form detail Launchpad links to,
+or they go.
