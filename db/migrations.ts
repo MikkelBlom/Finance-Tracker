@@ -32,4 +32,24 @@ export const MIGRATIONS: string[][] = [
       value TEXT
     );`,
   ],
+
+  // v2 — scheduled items, and the link from an auto-posted entry back to its rule
+  [
+    `CREATE TABLE IF NOT EXISTS scheduled_items (
+      id           TEXT PRIMARY KEY NOT NULL,
+      name         TEXT NOT NULL,
+      amount_minor INTEGER NOT NULL,
+      direction    TEXT NOT NULL,
+      category_id  TEXT,
+      cycle        TEXT NOT NULL,
+      starts_on    TEXT NOT NULL,
+      next_due_on  TEXT NOT NULL,
+      paused_at    TEXT,
+      created_at   TEXT NOT NULL,
+      updated_at   TEXT NOT NULL,
+      deleted_at   TEXT
+    );`,
+    `ALTER TABLE entries ADD COLUMN scheduled_item_id TEXT;`,
+    `CREATE INDEX IF NOT EXISTS idx_scheduled_next_due ON scheduled_items (next_due_on);`,
+  ],
 ];

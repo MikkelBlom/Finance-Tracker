@@ -170,3 +170,54 @@ Install the preview APK and use the app. If it launches, the MVP is real and a w
 logging is the next input. If it crashes on launch, it is almost certainly expo-sqlite
 initialisation — `adb logcat *:E`. Then the widget spike, which remains the open question
 the framework choice rests on.
+
+### 2026-07-28 — The calendar half: scheduled items, projection, balance anchor
+**agent:** Claude Code
+**summary:**
+Built the half of the product the budget depends on. A budget figure with no view of
+what is already committed says very little, which is exactly the gap this closes before
+August starts.
+
+Scheduled items: bills, subscriptions and salary with weekly, monthly or yearly cycles.
+They post themselves on their due date and advance, catching up anything missed while
+the app was closed. Adding an item never backfills — a rent rule "since January" rolls
+forward to the next real date rather than posting seven months at once. Pausing stops
+posting without losing history, and resuming rolls forward rather than firing every
+payment missed while paused.
+
+The calendar screen marks money in and out across the month — logged entries for past
+days, scheduled occurrences for future ones — and projects the balance for any day
+selected, with a breakdown of what is scheduled versus estimated ordinary spending.
+A 30-day figure answers the question that actually matters: whether a comfortable
+balance today survives next month's rent.
+
+Projection starts from a manually entered balance anchor, since there is no bank feed.
+Its age is shown, with a nudge to refresh once it passes ten days.
+
+Schema moved to v2 — a scheduled_items table and a scheduled_item_id on entries. That
+link matters beyond provenance: it keeps rent out of the day-to-day spending average,
+so a normal Tuesday is not modelled as costing 250 kr. more than it does.
+
+34 new tests, 62 total. Typecheck clean.
+**issues:**
+Three tests failed at first. All three traced to fixtures that set startsOn and
+nextDueOn to different days of the month, which the app never produces — the code was
+right and the fixtures were wrong. Fixing them exposed a real edge case though: resuming
+a paused item derived its anchor from the current due date, so a date that had been
+clamped by a short month would become permanent. Added rollForward, which uses the
+item's own anchor day.
+
+Verified end to end in the browser: adding a scheduled item, setting the balance, the
+projection maths, and auto-posting three missed months on launch — then confirmed a
+second launch does not double-post. The v2 migration was checked against a real SQLite
+engine on both a fresh install and a v1 upgrade, including that legacy rows survive
+with a null column.
+
+Also found several Pressables with no accessibility role, and month-navigation arrows
+that were bare glyphs a screen reader could not announce. Fixed.
+
+expo-sqlite is still unverified on device — that has not changed, and first launch of
+the new build is still the test.
+**next_steps:**
+Enter August's real recurring items and the account balance before the month starts.
+Then the widget spike, which remains the open question the framework choice rests on.

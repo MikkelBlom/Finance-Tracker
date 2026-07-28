@@ -46,13 +46,20 @@ export default function InsightsScreen() {
       ]}
     >
       <View style={styles.header}>
-        <Pressable onPress={() => setMonthKey(shiftMonth(monthKey, -1))} hitSlop={12}>
+        <Pressable
+          onPress={() => setMonthKey(shiftMonth(monthKey, -1))}
+          hitSlop={12}
+          accessibilityRole="button"
+          accessibilityLabel="Previous month"
+        >
           <Text style={styles.nav}>←</Text>
         </Pressable>
         <Text style={styles.month}>{monthLabel(monthKey)}</Text>
         <Pressable
           onPress={() => setMonthKey(shiftMonth(monthKey, 1))}
           hitSlop={12}
+          accessibilityRole="button"
+          accessibilityLabel="Next month"
           disabled={monthKey >= toMonthKey(today)}
         >
           <Text style={[styles.nav, monthKey >= toMonthKey(today) && styles.navOff]}>→</Text>

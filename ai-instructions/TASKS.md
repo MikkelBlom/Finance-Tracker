@@ -51,17 +51,17 @@ Active work items. This file drives the Kanban board in Launchpad.
 
 ## Backlog
 
-### Scheduled items and the calendar screen
+### Set up August before the month starts
 **status:** todo
 **priority:** high
-**description:** Recurring rules that auto-post on their date, a month grid marking money in and out, and the subscription total. The calendar tab is currently an honest placeholder.
-**created:** 2026-07-27
+**description:** Enter every recurring item — rent, insurance, subscriptions, salary — on the Scheduled screen, and set the account balance in More. Once both are in, the calendar projects the whole month and the budget figure means something. Do this before 1 August so the month is covered from day one.
+**created:** 2026-07-28
 
-### Balance anchor and forward projection
+### Per-category budgets
 **status:** todo
-**priority:** high
-**description:** A manually entered current balance plus scheduled items, giving "how much will I have on the 20th". Depends on scheduled items existing first.
-**created:** 2026-07-27
+**priority:** low
+**description:** Only one overall monthly budget exists. Worth adding only if a month of real use shows the single number is too blunt.
+**created:** 2026-07-28
 
 ### Notification listener spike
 **status:** todo

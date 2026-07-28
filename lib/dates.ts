@@ -85,3 +85,43 @@ export function shiftMonth(monthKey: string, delta: number): string {
   const d = new Date(y, m - 1 + delta, 1);
   return toMonthKey(d);
 }
+
+export function parseDayKey(dayKey: string): Date {
+  const [y, m, d] = dayKey.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
+export function addDays(dayKey: string, delta: number): string {
+  const d = parseDayKey(dayKey);
+  d.setDate(d.getDate() + delta);
+  return toDayKey(d);
+}
+
+/** Whole days from `fromKey` to `toKey`. Negative when toKey is earlier. */
+export function daysBetween(fromKey: string, toKey: string): number {
+  const ms = parseDayKey(toKey).getTime() - parseDayKey(fromKey).getTime();
+  // Round rather than floor: DST shifts make some "days" 23 or 25 hours long.
+  return Math.round(ms / 86400000);
+}
+
+export function firstDayOfMonth(monthKey: string): string {
+  return `${monthKey}-01`;
+}
+
+export function lastDayOfMonth(monthKey: string): string {
+  return `${monthKey}-${String(daysInMonth(monthKey)).padStart(2, '0')}`;
+}
+
+/**
+ * Weekday index with Monday as 0, matching how a Danish calendar is laid out.
+ * JavaScript puts Sunday at 0, which would shift every row by one.
+ */
+export function mondayFirstWeekday(dayKey: string): number {
+  return (parseDayKey(dayKey).getDay() + 6) % 7;
+}
+
+/** "27 Jul 2026" */
+export function longDate(dayKey: string): string {
+  const [y, m, d] = dayKey.split('-').map(Number);
+  return `${d} ${MONTHS_SHORT[m - 1]} ${y}`;
+}

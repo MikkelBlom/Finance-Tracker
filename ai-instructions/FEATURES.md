@@ -67,7 +67,7 @@ Tracks implemented, in-progress, and planned features.
 
 ### CSV and Excel export
 **status:** planned
-**description:** Export any date range per profile, so the data is never trapped in the app.
+**description:** Export any date range, so the data is never trapped in the app.
 **date_implemented:** —
 **depends_on:** Local ledger database
 **blocked_by:** —
@@ -77,37 +77,37 @@ Tracks implemented, in-progress, and planned features.
 ## Phase 2 — Planning and reach
 
 ### Scheduled and recurring items
-**status:** planned
-**description:** Recurring rules with amount, cycle and next due date that auto-post rather than being logged by hand.
-**date_implemented:** —
+**status:** implemented
+**description:** Recurring rules with amount, cycle and next due date. They post themselves on their date and advance, catching up anything missed while the app was closed, and never backfill dates already past when first added.
+**date_implemented:** 2026-07-28
 **depends_on:** Local ledger database
 **blocked_by:** —
 
 ### Subscription overview
-**status:** planned
-**description:** All subscriptions in one list with a single total monthly burn figure. Yearly costs normalised to a monthly equivalent.
-**date_implemented:** —
+**status:** implemented
+**description:** All scheduled outgoings in one list with a single monthly total and a yearly figure. Weekly and yearly items are normalised to a monthly equivalent, using 52 weeks a year rather than four weeks a month.
+**date_implemented:** 2026-07-28
 **depends_on:** Scheduled and recurring items
 **blocked_by:** —
 
 ### Calendar month view
-**status:** planned
-**description:** Month grid marking the dates money comes in and goes out, with the selected day's items listed beneath.
-**date_implemented:** —
+**status:** implemented
+**description:** Month grid marking money in and out — logged entries for past days, scheduled occurrences for future ones — with the selected day listed beneath.
+**date_implemented:** 2026-07-28
 **depends_on:** Scheduled and recurring items
 **blocked_by:** —
 
 ### Forward balance projection
-**status:** planned
-**description:** Projects balance forward from a manually set balance anchor using scheduled items and average variable spend. Answers "how much will I have on the 20th?"
-**date_implemented:** —
+**status:** implemented
+**description:** Projects from the balance anchor using logged entries since it, scheduled items up to the target date, and an estimate of ordinary spending. Answers "how much will I have on the 20th" for any day, plus a 30-day figure.
+**date_implemented:** 2026-07-28
 **depends_on:** Calendar month view, Balance anchor
 **blocked_by:** —
 
 ### Balance anchor
-**status:** planned
-**description:** A single current-balance figure the user updates when convenient. All projections run from it, and re-anchoring corrects accumulated drift.
-**date_implemented:** —
+**status:** implemented
+**description:** A current-balance figure the user updates whenever convenient, with an age warning once it goes stale. All projection runs from it, and re-anchoring corrects accumulated drift.
+**date_implemented:** 2026-07-28
 **depends_on:** Local ledger database
 **blocked_by:** —
 

@@ -1,12 +1,13 @@
 import { buildSeedCategories } from './seed';
 import { defaultSettings } from './types';
-import type { Category, Entry, Settings, Store } from './types';
+import type { Category, Entry, ScheduledItem, Settings, Store } from './types';
 
 const KEY = 'finance-tracker/v1';
 
 type Snapshot = {
   categories: Category[];
   entries: Entry[];
+  scheduled: ScheduledItem[];
   settings: Settings;
 };
 
@@ -22,21 +23,25 @@ type Snapshot = {
  * drivers, so the only thing that differs between web and device is persistence.
  */
 export class WebStore implements Store {
-  private data: Snapshot = { categories: [], entries: [], settings: defaultSettings };
+  private data: Snapshot = {
+    categories: [], entries: [], scheduled: [], settings: defaultSettings,
+  };
 
   async init(): Promise<void> {
     const raw = typeof localStorage === 'undefined' ? null : localStorage.getItem(KEY);
     if (raw) {
       try {
-        const parsed = JSON.parse(raw) as Snapshot;
+        const parsed = JSON.parse(raw) as Partial<Snapshot>;
         this.data = {
           categories: parsed.categories ?? [],
-          entries: parsed.entries ?? [],
+          // Older snapshots predate this field; default it rather than crashing.
+          entries: (parsed.entries ?? []).map((e) => ({ ...e, scheduledItemId: e.scheduledItemId ?? null })),
+          scheduled: parsed.scheduled ?? [],
           settings: { ...defaultSettings, ...(parsed.settings ?? {}) },
         };
       } catch {
         // A corrupt snapshot is not worth crashing the app over — start clean.
-        this.data = { categories: [], entries: [], settings: defaultSettings };
+        this.data = { categories: [], entries: [], scheduled: [], settings: defaultSettings };
       }
     }
     if (this.data.categories.length === 0) {
@@ -73,6 +78,19 @@ export class WebStore implements Store {
     const i = this.data.entries.findIndex((e) => e.id === entry.id);
     if (i >= 0) this.data.entries[i] = entry;
     else this.data.entries.push(entry);
+    this.flush();
+  }
+
+  async getScheduledItems(): Promise<ScheduledItem[]> {
+    return this.data.scheduled
+      .filter((s) => s.deletedAt === null)
+      .sort((a, b) => (a.nextDueOn < b.nextDueOn ? -1 : 1));
+  }
+
+  async putScheduledItem(item: ScheduledItem): Promise<void> {
+    const i = this.data.scheduled.findIndex((s) => s.id === item.id);
+    if (i >= 0) this.data.scheduled[i] = item;
+    else this.data.scheduled.push(item);
     this.flush();
   }
 

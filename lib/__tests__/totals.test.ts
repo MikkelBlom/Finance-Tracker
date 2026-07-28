@@ -17,6 +17,7 @@ function entry(
 ): Entry {
   return {
     id, amountMinor, direction, categoryId, note: null, occurredAt,
+    scheduledItemId: null,
     createdAt: occurredAt, updatedAt: occurredAt, deletedAt: null,
   };
 }

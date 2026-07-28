@@ -2,7 +2,9 @@ import * as SQLite from 'expo-sqlite';
 import { MIGRATIONS } from './migrations';
 import { buildSeedCategories } from './seed';
 import { defaultSettings } from './types';
-import type { Category, Entry, Settings, Store, Direction } from './types';
+import type {
+  Category, Cycle, Direction, Entry, ScheduledItem, Settings, Store,
+} from './types';
 
 type CategoryRow = {
   id: string;
@@ -22,6 +24,22 @@ type EntryRow = {
   category_id: string | null;
   note: string | null;
   occurred_at: string;
+  scheduled_item_id: string | null;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+};
+
+type ScheduledRow = {
+  id: string;
+  name: string;
+  amount_minor: number;
+  direction: string;
+  category_id: string | null;
+  cycle: string;
+  starts_on: string;
+  next_due_on: string;
+  paused_at: string | null;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
@@ -48,6 +66,24 @@ function toEntry(r: EntryRow): Entry {
     categoryId: r.category_id,
     note: r.note,
     occurredAt: r.occurred_at,
+    scheduledItemId: r.scheduled_item_id,
+    createdAt: r.created_at,
+    updatedAt: r.updated_at,
+    deletedAt: r.deleted_at,
+  };
+}
+
+function toScheduled(r: ScheduledRow): ScheduledItem {
+  return {
+    id: r.id,
+    name: r.name,
+    amountMinor: r.amount_minor,
+    direction: r.direction as Direction,
+    categoryId: r.category_id,
+    cycle: r.cycle as Cycle,
+    startsOn: r.starts_on,
+    nextDueOn: r.next_due_on,
+    pausedAt: r.paused_at,
     createdAt: r.created_at,
     updatedAt: r.updated_at,
     deletedAt: r.deleted_at,
@@ -127,19 +163,49 @@ export class SqliteStore implements Store {
 
   async putEntry(e: Entry): Promise<void> {
     await this.handle.runAsync(
-      `INSERT INTO entries (id, amount_minor, direction, category_id, note, occurred_at, created_at, updated_at, deleted_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `INSERT INTO entries (id, amount_minor, direction, category_id, note, occurred_at, scheduled_item_id, created_at, updated_at, deleted_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
        ON CONFLICT(id) DO UPDATE SET
          amount_minor = excluded.amount_minor,
          direction = excluded.direction,
          category_id = excluded.category_id,
          note = excluded.note,
          occurred_at = excluded.occurred_at,
+         scheduled_item_id = excluded.scheduled_item_id,
          updated_at = excluded.updated_at,
          deleted_at = excluded.deleted_at`,
       [
-        e.id, e.amountMinor, e.direction, e.categoryId, e.note,
-        e.occurredAt, e.createdAt, e.updatedAt, e.deletedAt,
+        e.id, e.amountMinor, e.direction, e.categoryId, e.note, e.occurredAt,
+        e.scheduledItemId, e.createdAt, e.updatedAt, e.deletedAt,
+      ]
+    );
+  }
+
+  async getScheduledItems(): Promise<ScheduledItem[]> {
+    const rows = await this.handle.getAllAsync<ScheduledRow>(
+      'SELECT * FROM scheduled_items WHERE deleted_at IS NULL ORDER BY next_due_on ASC'
+    );
+    return rows.map(toScheduled);
+  }
+
+  async putScheduledItem(s: ScheduledItem): Promise<void> {
+    await this.handle.runAsync(
+      `INSERT INTO scheduled_items (id, name, amount_minor, direction, category_id, cycle, starts_on, next_due_on, paused_at, created_at, updated_at, deleted_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+       ON CONFLICT(id) DO UPDATE SET
+         name = excluded.name,
+         amount_minor = excluded.amount_minor,
+         direction = excluded.direction,
+         category_id = excluded.category_id,
+         cycle = excluded.cycle,
+         starts_on = excluded.starts_on,
+         next_due_on = excluded.next_due_on,
+         paused_at = excluded.paused_at,
+         updated_at = excluded.updated_at,
+         deleted_at = excluded.deleted_at`,
+      [
+        s.id, s.name, s.amountMinor, s.direction, s.categoryId, s.cycle,
+        s.startsOn, s.nextDueOn, s.pausedAt, s.createdAt, s.updatedAt, s.deletedAt,
       ]
     );
   }
@@ -149,17 +215,33 @@ export class SqliteStore implements Store {
       'SELECT key, value FROM settings'
     );
     const map = new Map(rows.map((r) => [r.key, r.value]));
-    const budget = map.get('monthlyBudgetMinor');
+    const num = (key: string): number | null => {
+      const raw = map.get(key);
+      return raw == null || raw === '' ? null : Number(raw);
+    };
+    const str = (key: string): string | null => {
+      const raw = map.get(key);
+      return raw == null || raw === '' ? null : raw;
+    };
     return {
-      monthlyBudgetMinor: budget == null || budget === '' ? null : Number(budget),
+      monthlyBudgetMinor: num('monthlyBudgetMinor'),
+      balanceMinor: num('balanceMinor'),
+      balanceObservedOn: str('balanceObservedOn'),
     };
   }
 
   async putSettings(s: Settings): Promise<void> {
-    await this.handle.runAsync(
-      `INSERT INTO settings (key, value) VALUES (?, ?)
-       ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
-      ['monthlyBudgetMinor', s.monthlyBudgetMinor == null ? null : String(s.monthlyBudgetMinor)]
-    );
+    const pairs: [string, string | null][] = [
+      ['monthlyBudgetMinor', s.monthlyBudgetMinor == null ? null : String(s.monthlyBudgetMinor)],
+      ['balanceMinor', s.balanceMinor == null ? null : String(s.balanceMinor)],
+      ['balanceObservedOn', s.balanceObservedOn],
+    ];
+    for (const [key, value] of pairs) {
+      await this.handle.runAsync(
+        `INSERT INTO settings (key, value) VALUES (?, ?)
+         ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
+        [key, value]
+      );
+    }
   }
 }
