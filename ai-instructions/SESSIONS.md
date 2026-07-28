@@ -221,3 +221,44 @@ the new build is still the test.
 **next_steps:**
 Enter August's real recurring items and the account balance before the month starts.
 Then the widget spike, which remains the open question the framework choice rests on.
+
+### 2026-07-28 — Widget spike answered, and built
+**agent:** Claude Code
+**summary:**
+The user asked what the "widget spike" was, having seen no widget in the dev build.
+Fair — there was none, and "spike" was jargon that made an unbuilt experiment sound
+like a missing feature.
+
+Answered it properly instead. Expo can ship a real Android App Widget, verified with
+`expo prebuild` rather than a cloud build: the generated project contains a QuickAdd
+AppWidgetProvider, its provider XML, and a manifest receiver carrying the
+android.appwidget.provider meta-data — which is what puts a widget in the launcher's
+picker. The Expo-over-Next.js decision rested entirely on this claim and had never been
+tested. It holds.
+
+Built the widget while there: a "Log expense" bar that deep links to
+financetracker:///add, one tap from home screen into the numpad. The scheme was already
+in the manifest and the add screen already handled being the first route with no history,
+so nothing extra was needed.
+
+Deliberately dataless. Live figures need the widget to read the database from a headless
+context, which is a separate problem worth doing properly.
+**issues:**
+The entry point had to move to index.js so the task handler is registered in the same
+bundle Android runs headlessly. That is startup code, so both the import and the
+registration are guarded to Platform.OS === 'android' — the library has no web build and
+an unguarded import would have broken the browser preview. Verified the web app still
+boots afterwards.
+
+`expo prebuild` rewrote the android npm script to a local build needing a JDK and Android
+SDK this machine does not have; reverted. The generated android/ directory was deleted to
+stay in the managed workflow.
+
+Two builds were deliberately queued in order rather than one combined: the calendar build
+first as a known-good August APK, the widget build second, since the widget changed how
+the app boots. Both finished.
+
+expo-sqlite is still unverified on device. Unchanged, and still the one real risk.
+**next_steps:**
+Install the calendar APK, set up August's recurring items and balance, confirm it works,
+then install the widget APK. After that the honest next input is a week of real use.

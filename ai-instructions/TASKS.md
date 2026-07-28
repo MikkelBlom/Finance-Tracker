@@ -12,9 +12,9 @@ Active work items. This file drives the Kanban board in Launchpad.
 ## Now
 
 ### Widget feasibility spike
-**status:** in-progress
+**status:** done
 **priority:** high
-**description:** Half proven. The EAS cloud pipeline works — a development APK built and downloaded successfully, so the machine needs no JDK or Android SDK. The actual question is still open: whether an Android App Widget can be registered and appear in the launcher's widget list from an Expo build. Add the widget library, register a trivial widget, rebuild once, and try to drop it on the home screen. Nothing else should be built on top of the Expo bet until that passes.
+**description:** Answered: Expo can ship a real Android App Widget. Verified with expo prebuild rather than a cloud build — the generated project contains a QuickAdd AppWidgetProvider, its provider XML, and a manifest receiver with the appwidget provider meta-data. The Expo-over-Next.js decision rested entirely on this and now holds up.
 **created:** 2026-07-27
 
 ### Use it for a week and report what hurts
@@ -55,6 +55,12 @@ Active work items. This file drives the Kanban board in Launchpad.
 **status:** todo
 **priority:** high
 **description:** Enter every recurring item — rent, insurance, subscriptions, salary — on the Scheduled screen, and set the account balance in More. Once both are in, the calendar projects the whole month and the budget figure means something. Do this before 1 August so the month is covered from day one.
+**created:** 2026-07-28
+
+### Show live figures on the widget
+**status:** todo
+**priority:** medium
+**description:** The widget is a static button. Putting left-to-spend or safe-to-spend on it means rendering data from a headless context, where the app is not running and the database is not open. Likely approach is writing a small snapshot the task handler can read, rather than opening SQLite there.
 **created:** 2026-07-28
 
 ### Per-category budgets

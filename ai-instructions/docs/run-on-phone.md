@@ -2,17 +2,33 @@
 
 ## The short version
 
-The standalone APK is built and waiting. Open this on the **S24 Ultra** (not the PC):
+Open these on the **S24 Ultra** (not the PC). Android will warn about installing outside
+the Play Store; allow it for Chrome when asked. The app then runs on its own — no PC, no
+dev server, no Wi-Fi.
 
-**https://expo.dev/artifacts/eas/Rj9y1dP5w8J196szZ088uN3UPnhBfRAqApUVrtZFKVo.apk**
+**1. Install this first** — everything except the widget, and the safety net if anything
+goes wrong:
 
-Android will warn about installing outside the Play Store; allow it for Chrome when asked.
-That's it — the app runs on its own, with no PC, no dev server, and no Wi-Fi involved.
+https://expo.dev/artifacts/eas/zaSA7Lrca7GhQS8loXcXEJlUyDoNwlE1HP1XspbgdYI.apk
 
-That direct link **expires on 10 August 2026**. After that, or for any later build, go to
-the project's build list instead and tap the newest **preview** entry:
+**2. Then this, once the first one has proved itself** — same app plus the home screen
+widget:
+
+https://expo.dev/artifacts/eas/Or7MucV_p6O_hjaDaBfbQMmLJ301nKhojdVUWkvzoP4.apk
+
+The order matters because the widget build changes the app's entry point, which is startup
+code. If it misbehaves, install the first APK **over** it — do not uninstall, or the
+ledger goes with it.
+
+Both direct links **expire on 11 August 2026**. After that, or for any later build, go to
+the project's build list and tap the newest **preview** entry:
 
 **https://expo.dev/accounts/mikkelr/projects/finance-tracker/builds**
+
+## Adding the widget to the home screen
+
+Long-press an empty part of the home screen → **Widgets** → find **Finance Tracker** →
+drag **Log expense** where you want it. Tapping it opens straight into the numpad.
 
 ## Two builds, and why the difference matters
 

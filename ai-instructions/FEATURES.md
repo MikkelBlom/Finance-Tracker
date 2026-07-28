@@ -119,11 +119,11 @@ Tracks implemented, in-progress, and planned features.
 **blocked_by:** —
 
 ### Android home screen widget
-**status:** planned
-**description:** Home screen widget with one-tap presets, a quick-add button, and left-to-spend at a glance.
-**date_implemented:** —
+**status:** in-progress
+**description:** A "Log expense" widget that deep links straight into the numpad, proving Expo can ship a real Android App Widget. Showing live figures such as left-to-spend needs the widget to read the database from a headless context, which is not built yet.
+**date_implemented:** 2026-07-28
 **depends_on:** Quick expense entry
-**blocked_by:** Widget feasibility spike
+**blocked_by:** —
 
 ### Budget push notifications
 **status:** planned
