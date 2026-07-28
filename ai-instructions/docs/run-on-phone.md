@@ -2,13 +2,17 @@
 
 ## The short version
 
-Open this on the **S24 Ultra** (not the PC):
+The standalone APK is built and waiting. Open this on the **S24 Ultra** (not the PC):
+
+**https://expo.dev/artifacts/eas/Rj9y1dP5w8J196szZ088uN3UPnhBfRAqApUVrtZFKVo.apk**
+
+Android will warn about installing outside the Play Store; allow it for Chrome when asked.
+That's it — the app runs on its own, with no PC, no dev server, and no Wi-Fi involved.
+
+That direct link **expires on 10 August 2026**. After that, or for any later build, go to
+the project's build list instead and tap the newest **preview** entry:
 
 **https://expo.dev/accounts/mikkelr/projects/finance-tracker/builds**
-
-Tap the newest **preview** build → **Install**. Android will warn about installing
-outside the Play Store; allow it for Chrome when asked. That's it — the app runs on its
-own, with no PC, no dev server, and no Wi-Fi involved.
 
 ## Two builds, and why the difference matters
 
